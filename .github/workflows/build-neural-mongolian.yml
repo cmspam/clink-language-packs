@@ -55,6 +55,9 @@ jobs:
         with:
           name: mn-checkpoint
           path: tools/.lm_mn.pt
+          # The checkpoint is a dotfile, and upload-artifact leaves dotfiles
+          # out unless it is told not to.
+          include-hidden-files: true
           retention-days: 7
 
   compile:
