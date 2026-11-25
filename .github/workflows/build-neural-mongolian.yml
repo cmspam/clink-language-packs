@@ -1,9 +1,13 @@
 name: Build the Mongolian neural model
 
 # The neural model is trained here rather than on a machine of the author's,
-# so the pack can be rebuilt from its pinned sources. Training runs on Linux
-# because that is where PyTorch is fastest; the Core ML compile needs Apple's
-# compiler, so it runs on a macOS runner.
+# so the pack can be rebuilt from its pinned sources.
+#
+# Training runs on Linux because that is where PyTorch is fastest. The Core ML
+# conversion cannot: coremltools ships the native blob writer that writes a
+# package only for macOS, so on Linux the conversion ends with "BlobWriter not
+# loaded". The two halves are therefore two jobs, with the checkpoint passing
+# between them.
 #
 # The output is uploaded as an artifact. Copy it into Lexicons/ and push, and
 # the release workflow publishes it with the rest of the pack.
@@ -35,18 +39,17 @@ jobs:
           pip install -r requirements-train.txt
       - name: Fetch the Mongolian corpus
         run: python3 tools/prepare-mongolian.py
-      - name: Train and export
-        # The corpus is capped so the run fits the job limit: a GRU of this
-        # size trains at about 0.7 seconds a step on a four core runner, and
-        # the whole 476,000 sentence corpus would need three days of that.
-        # Sixty thousand sentences over two epochs is about two hours.
-        run: python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 2 --max-lines 60000
+      - name: Train
+        # The conversion that follows the training cannot run on Linux, and
+        # the trainer does both in one command. The checkpoint is written
+        # before the conversion starts, so it is what the macOS job needs.
+        run: |
+          python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 2 --max-lines 150000 || true
+          test -f tools/.lm_mn.pt
       - uses: actions/upload-artifact@v4
         with:
-          name: mn-export
-          path: |
-            tools/.lm_build/mn.mlpackage
-            Lexicons/mn.bpevocab
+          name: mn-checkpoint
+          path: tools/.lm_mn.pt
           retention-days: 7
 
   compile:
@@ -54,10 +57,23 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the training environment
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-train.txt
+      - name: Fetch the Mongolian corpus
+        # The export rebuilds the vocabulary from the corpus, so it has to
+        # match the one the checkpoint was trained against.
+        run: python3 tools/prepare-mongolian.py
       - uses: actions/download-artifact@v4
         with:
-          name: mn-export
-          path: .
+          name: mn-checkpoint
+          path: tools
+      - name: Export the Core ML model
+        run: python3 tools/train-neural.py --lang mn --bpe 12000 --max-lines 150000 --export-only
       - name: Compile the Core ML model
         run: |
           xcrun --find coremlcompiler
@@ -66,5 +82,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: mn-neural
-          path: Lexicons/mn.mlmodelc
+          path: |
+            Lexicons/mn.mlmodelc
+            Lexicons/mn.bpevocab
           retention-days: 30
