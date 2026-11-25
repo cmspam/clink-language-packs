@@ -1,0 +1,14 @@
+name: Probe macOS runners
+
+on:
+  workflow_dispatch:
+
+jobs:
+  macos15:
+    runs-on: macos-15
+    steps:
+      - run: echo hello from macos-15
+  macos14:
+    runs-on: macos-14
+    steps:
+      - run: echo hello from macos-14
