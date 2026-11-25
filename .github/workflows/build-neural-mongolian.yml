@@ -1,0 +1,64 @@
+name: Build the Mongolian neural model
+
+# The neural model is trained here rather than on a machine of the author's,
+# so the pack can be rebuilt from its pinned sources. Training runs on Linux
+# because that is where PyTorch is fastest; the Core ML compile needs Apple's
+# compiler, so it runs on a macOS runner.
+#
+# The output is uploaded as an artifact. Copy it into Lexicons/ and push, and
+# the release workflow publishes it with the rest of the pack.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/prepare-mongolian.py'
+      - 'tools/train-neural.py'
+      - 'requirements-train.txt'
+      - '.github/workflows/build-neural-mongolian.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the training environment
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-train.txt
+      - name: Fetch the Mongolian corpus
+        run: python3 tools/prepare-mongolian.py
+      - name: Train and export
+        run: python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mn-mlpackage
+          path: tools/.lm_build/mn.mlpackage
+          retention-days: 7
+
+  compile:
+    needs: train
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: mn-mlpackage
+          path: tools/.lm_build
+      - name: Compile the Core ML model
+        run: |
+          xcrun --find coremlcompiler
+          xcrun coremlcompiler compile tools/.lm_build/mn.mlpackage Lexicons
+          ls -la Lexicons/mn.mlmodelc
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mn-neural
+          path: Lexicons/mn.mlmodelc
+          retention-days: 30

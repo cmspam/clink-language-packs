@@ -1,0 +1,29 @@
+{
+  "language": {
+    "code": "mn",
+    "name": "Mongolian"
+  },
+  "sources": [
+    {
+      "name": "Mongolian Wikipedia, pages-articles dump, 2026-11-01",
+      "url": "https://dumps.wikimedia.org/mnwiki/20261101/mnwiki-20261101-pages-articles.xml.bz2",
+      "license": "CC-BY-SA-4.0",
+      "sha256": "224581a786698cf0d0ef23a442fbc0b592fd5e5492532eb9761c94954cc94fff",
+      "role": "dictionary frequencies and next-word pairs"
+    },
+    {
+      "name": "Tatoeba Mongolian sentence export",
+      "url": "https://downloads.tatoeba.org/exports/per_language/mon/mon_sentences.tsv.bz2",
+      "license": "CC-BY-2.0-FR",
+      "sha256": "9cc84dab554a5ba15fe657fc3a655e66671bd8e4e2e6960e3f09d63fef56fde8",
+      "role": "everyday sentences, added to the dictionary and the next-word model"
+    }
+  ],
+  "derived": {
+    "sentences": 476224,
+    "tokens": 7380909,
+    "wordTypes": 298531,
+    "dictionaryWords": 50000,
+    "normalization": "Wikipedia markup removed; words are Cyrillic letters with an internal hyphen or apostrophe; sentences of 3 to 40 words; sentences that are mostly non-Cyrillic dropped"
+  }
+}

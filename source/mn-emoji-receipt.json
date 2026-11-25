@@ -1,0 +1,43 @@
+{
+  "language": {
+    "code": "mn",
+    "name": "Mongolian"
+  },
+  "sources": [
+    {
+      "source": "https://raw.githubusercontent.com/unicode-org/cldr/release-48/common/annotations/mn.xml",
+      "sha256": "827a724ddb1065619309561c7e53c49178e643354b5d72e1e0e3483bd1a0880b"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/unicode-org/cldr/release-48/common/annotationsDerived/mn.xml",
+      "sha256": "bd8b66fa38b7c5d5d66154ed66794d821bc3ddb1f281564e4ffe5965404a8c8a"
+    },
+    {
+      "source": "https://unicode.org/Public/emoji/latest/emoji-test.txt",
+      "sha256": "8f3735cda1f92a779d78af67cf86066bb1f07143dc22f2ac29394d9bc57ab21a",
+      "role": "the set of glyphs Clink's keyboard can produce"
+    }
+  ],
+  "licence": "Unicode-3.0 (CLDR annotations and emoji data)",
+  "derived": {
+    "aliases": 1914,
+    "names": 1914,
+    "stopwords": [
+      "ба",
+      "болон",
+      "гэж",
+      "бөгөөд",
+      "мөн",
+      "юм",
+      "нь",
+      "ч",
+      "энэ",
+      "тэр"
+    ],
+    "extraAliases": {
+      "🇲🇳": [
+        "монгол"
+      ]
+    }
+  }
+}

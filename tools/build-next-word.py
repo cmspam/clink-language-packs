@@ -5,6 +5,11 @@ Usage: python3 tools/build-next-word.py tok source/tok.txt source/tok.sentences.
 
 The word list must be the same one used with build-pack.py. Put one complete
 sentence per line in the corpus file. The result is Lexicons/tok.cngm.
+
+Add --max-followers N to keep only the N most likely followers of each word.
+A large corpus can otherwise produce millions of pairs that no keyboard ever
+shows. The probabilities of the kept pairs are rescaled so they still sum to
+one for each word.
 """
 import collections
 import math
@@ -14,9 +19,17 @@ import struct
 import sys
 import unicodedata
 
-if len(sys.argv) != 4:
-    raise SystemExit("Usage: python3 tools/build-next-word.py <code> <word-list.txt> <sentences.txt>")
-code, word_path, corpus_path = sys.argv[1], pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3])
+max_followers = 0
+arguments = sys.argv[1:]
+while "--max-followers" in arguments:
+    index = arguments.index("--max-followers")
+    if index + 1 >= len(arguments):
+        raise SystemExit("--max-followers needs a number.")
+    max_followers = int(arguments[index + 1])
+    del arguments[index:index + 2]
+if len(arguments) != 3:
+    raise SystemExit("Usage: python3 tools/build-next-word.py <code> <word-list.txt> <sentences.txt> [--max-followers N]")
+code, word_path, corpus_path = arguments[0], pathlib.Path(arguments[1]), pathlib.Path(arguments[2])
 if not code or not code.replace("_", "").replace("-", "").isalnum():
     raise SystemExit("Use a short language code such as tok or pt_br.")
 
@@ -49,6 +62,21 @@ totals = collections.Counter()
 for (previous, _), count in pairs.items(): totals[previous] += count
 # Pair groups must be previous-id ascending, then most frequent first.
 ranked = sorted(pairs.items(), key=lambda item: (ids[item[0][0]], -item[1], ids[item[0][1]]))
+if max_followers:
+    # The ranked list is already grouped by previous word and ordered by count,
+    # so keeping the first N of each group keeps that word's best followers.
+    kept, group, taken = [], None, 0
+    for item in ranked:
+        identifier = ids[item[0][0]]
+        if identifier != group:
+            group, taken = identifier, 0
+        if taken < max_followers:
+            kept.append(item)
+            taken += 1
+    ranked = kept
+    # Rescale, so the followers that survive still sum to one per word.
+    totals = collections.Counter()
+    for (previous, _), count in ranked: totals[previous] += count
 blob = bytearray(b"CNGM" + struct.pack("<II", 1, len(ranked)))
 for (previous, _), _count in ranked: blob += struct.pack("<I", ids[previous])
 for (_, following), _count in ranked: blob += struct.pack("<I", ids[following])
@@ -59,4 +87,5 @@ for (previous, _), count in ranked:
 destination = pathlib.Path("Lexicons") / f"{code}.cngm"
 destination.parent.mkdir(exist_ok=True)
 destination.write_bytes(blob)
-print(f"Built {destination} with {len(ranked):,} next-word pairs.")
+cap = f", at most {max_followers} followers per word" if max_followers else ""
+print(f"Built {destination} with {len(ranked):,} next-word pairs{cap}.")

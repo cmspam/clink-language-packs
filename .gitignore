@@ -6,3 +6,5 @@ tools/.lm_build/
 source/*.txt
 source/*_sentences.tsv
 source/*.sources.json
+source/.cache/
+__pycache__/

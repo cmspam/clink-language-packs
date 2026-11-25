@@ -6,7 +6,8 @@
     {"name":"Tatoeba sentence exports","license":"CC-BY-2.0-FR","url":"https://tatoeba.org/en/downloads"},
     {"name":"JMdict","license":"CC-BY-SA-3.0","url":"https://www.edrdg.org/jmdict/j_jmdict.html"},
     {"name":"CC-CEDICT","license":"CC-BY-SA-3.0","url":"https://cc-cedict.org/wiki/"},
-    {"name":"PHINC: Parallel Hinglish Social Media Code-Mixed Corpus","license":"CC-BY-4.0","url":"https://huggingface.co/datasets/LingoIITGN/PHINC"}
+    {"name":"PHINC: Parallel Hinglish Social Media Code-Mixed Corpus","license":"CC-BY-4.0","url":"https://huggingface.co/datasets/LingoIITGN/PHINC"},
+    {"name":"Mongolian Wikipedia","license":"CC-BY-SA-4.0","url":"https://dumps.wikimedia.org/mnwiki/"}
   ],
   "packs": [
     {"code":"sv","status":"complete","sources":["https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/sv/sv_50k.txt","https://downloads.tatoeba.org/exports/per_language/swe/swe_sentences.tsv.bz2"],"sha256":{"wordlist":"566d0614a54f3c243bca4097c9bb824d46275abff31582157e73c166b7089500","sentences":"92cdd6c289ecc63c8da04e043ef6e4766a816ad3306707ad4b392f4b34dc657e"}},
@@ -29,6 +30,7 @@
     {"code":"be","status":"complete","sources":["https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/be/be_50k.txt","https://downloads.tatoeba.org/exports/per_language/bel/bel_sentences.tsv.bz2"]},
     {"code":"mk","status":"complete","sources":["https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/mk/mk_50k.txt","https://downloads.tatoeba.org/exports/per_language/mkd/mkd_sentences.tsv.bz2"]},
     {"code":"kk","status":"complete","sources":["https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/kk/kk_50k.txt","https://downloads.tatoeba.org/exports/per_language/kaz/kaz_sentences.tsv.bz2"]},
+    {"code":"mn","status":"complete","sources":["https://dumps.wikimedia.org/mnwiki/20261101/mnwiki-20261101-pages-articles.xml.bz2","https://downloads.tatoeba.org/exports/per_language/mon/mon_sentences.tsv.bz2"],"sha256":{"wikipedia":"224581a786698cf0d0ef23a442fbc0b592fd5e5492532eb9761c94954cc94fff","sentences":"9cc84dab554a5ba15fe657fc3a655e66671bd8e4e2e6960e3f09d63fef56fde8"}},
     {"code":"fa","status":"complete","neural":true,"sources":["https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/fa/fa_50k.txt","https://downloads.tatoeba.org/exports/per_language/pes/pes_sentences.tsv.bz2"]},
     {"code":"ur","status":"complete","sources":["https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/ur/ur_50k.txt","https://downloads.tatoeba.org/exports/per_language/urd/urd_sentences.tsv.bz2"]},
     {"code":"he","status":"complete","sources":["https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/he/he_50k.txt","https://downloads.tatoeba.org/exports/per_language/heb/heb_sentences.tsv.bz2"]},
