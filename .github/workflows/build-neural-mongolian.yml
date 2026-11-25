@@ -39,8 +39,10 @@ jobs:
         run: python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 3
       - uses: actions/upload-artifact@v4
         with:
-          name: mn-mlpackage
-          path: tools/.lm_build/mn.mlpackage
+          name: mn-export
+          path: |
+            tools/.lm_build/mn.mlpackage
+            Lexicons/mn.bpevocab
           retention-days: 7
 
   compile:
@@ -50,8 +52,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: mn-mlpackage
-          path: tools/.lm_build
+          name: mn-export
+          path: .
       - name: Compile the Core ML model
         run: |
           xcrun --find coremlcompiler
