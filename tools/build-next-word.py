@@ -10,6 +10,10 @@ Add --max-followers N to keep only the N most likely followers of each word.
 A large corpus can otherwise produce millions of pairs that no keyboard ever
 shows. The probabilities of the kept pairs are rescaled so they still sum to
 one for each word.
+
+Add --top-previous N to model only the N most frequent words as the word that
+comes before another. A next-word suggestion is only useful after a word
+people actually type, and the rare words contribute pairs nobody would see.
 """
 import collections
 import math
@@ -20,15 +24,20 @@ import sys
 import unicodedata
 
 max_followers = 0
+top_previous = 0
 arguments = sys.argv[1:]
-while "--max-followers" in arguments:
-    index = arguments.index("--max-followers")
-    if index + 1 >= len(arguments):
-        raise SystemExit("--max-followers needs a number.")
-    max_followers = int(arguments[index + 1])
-    del arguments[index:index + 2]
+for flag in ("--max-followers", "--top-previous"):
+    while flag in arguments:
+        index = arguments.index(flag)
+        if index + 1 >= len(arguments):
+            raise SystemExit(f"{flag} needs a number.")
+        if flag == "--max-followers":
+            max_followers = int(arguments[index + 1])
+        else:
+            top_previous = int(arguments[index + 1])
+        del arguments[index:index + 2]
 if len(arguments) != 3:
-    raise SystemExit("Usage: python3 tools/build-next-word.py <code> <word-list.txt> <sentences.txt> [--max-followers N]")
+    raise SystemExit("Usage: python3 tools/build-next-word.py <code> <word-list.txt> <sentences.txt> [--max-followers N] [--top-previous N]")
 code, word_path, corpus_path = arguments[0], pathlib.Path(arguments[1]), pathlib.Path(arguments[2])
 if not code or not code.replace("_", "").replace("-", "").isalnum():
     raise SystemExit("Use a short language code such as tok or pt_br.")
@@ -39,13 +48,25 @@ def word(value):
 
 # This is the same bytewise word order build-pack.py writes into the CLEX file.
 words = set()
+frequency = {}
 for raw in word_path.read_text(encoding="utf-8").splitlines():
     if raw.strip() and not raw.lstrip().startswith("#"):
-        candidate = word(raw.rsplit(maxsplit=1)[0])
-        if candidate: words.add(candidate)
+        fields = raw.rsplit(maxsplit=1)
+        candidate = word(fields[0])
+        if candidate:
+            words.add(candidate)
+            try: frequency[candidate] = float(fields[1])
+            except (IndexError, ValueError): frequency[candidate] = 1.0
 ordered = sorted(words, key=lambda value: value.encode("utf-8"))
 if not ordered: raise SystemExit("The word list contains no usable words.")
 ids = {value: index for index, value in enumerate(ordered)}
+
+# A next-word model only helps after a word people actually type. Restricting
+# the previous words to the most frequent ones keeps the file to a size worth
+# downloading without losing the suggestions anyone would use.
+allowed = None
+if top_previous:
+    allowed = set(sorted(frequency, key=lambda value: (-frequency[value], value))[:top_previous])
 
 pairs = collections.Counter()
 for raw in corpus_path.read_text(encoding="utf-8").splitlines():
@@ -54,7 +75,11 @@ for raw in corpus_path.read_text(encoding="utf-8").splitlines():
     sentence = raw.rsplit("\t", 1)[-1]
     tokens = [word(token) for token in re.findall(r'[^\s.,!?;:"“”‘’()\[\]{}]+', sentence)]
     tokens = [token for token in tokens if token in ids]
-    pairs.update(zip(tokens, tokens[1:]))
+    if allowed is None:
+        pairs.update(zip(tokens, tokens[1:]))
+    else:
+        pairs.update((first, second) for first, second in zip(tokens, tokens[1:])
+                     if first in allowed)
 if not pairs:
     raise SystemExit("No word pairs matched the word list. Check that the corpus and word list use the same spelling.")
 
@@ -88,4 +113,5 @@ destination = pathlib.Path("Lexicons") / f"{code}.cngm"
 destination.parent.mkdir(exist_ok=True)
 destination.write_bytes(blob)
 cap = f", at most {max_followers} followers per word" if max_followers else ""
-print(f"Built {destination} with {len(ranked):,} next-word pairs{cap}.")
+top = f", modelling the {top_previous:,} most frequent words" if top_previous else ""
+print(f"Built {destination} with {len(ranked):,} next-word pairs{cap}{top}.")

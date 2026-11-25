@@ -38,13 +38,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-train.txt
       - name: Fetch the Mongolian corpus
-        run: python3 tools/prepare-mongolian.py
+        run: python3 tools/prepare-mongolian.py source/.cache 300000
       - name: Train
         # The conversion that follows the training cannot run on Linux, and
         # the trainer does both in one command. The checkpoint is written
         # before the conversion starts, so it is what the macOS job needs.
+        #
+        # The step count is what the job limit allows: the runner does about
+        # 0.28 seconds a step, a sentence of the corpus is about twenty pairs,
+        # and a job may run six hours. Two hundred thousand lines of the web
+        # corpus fit in that with room to spare.
         run: |
-          python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 2 --max-lines 150000 || true
+          python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 2 --max-lines 200000 || true
           test -f tools/.lm_mn.pt
       - uses: actions/upload-artifact@v4
         with:
@@ -67,13 +72,13 @@ jobs:
       - name: Fetch the Mongolian corpus
         # The export rebuilds the vocabulary from the corpus, so it has to
         # match the one the checkpoint was trained against.
-        run: python3 tools/prepare-mongolian.py
+        run: python3 tools/prepare-mongolian.py source/.cache 300000
       - uses: actions/download-artifact@v4
         with:
           name: mn-checkpoint
           path: tools
       - name: Export the Core ML model
-        run: python3 tools/train-neural.py --lang mn --bpe 12000 --max-lines 150000 --export-only
+        run: python3 tools/train-neural.py --lang mn --bpe 12000 --max-lines 200000 --export-only
       - name: Compile the Core ML model
         run: |
           xcrun --find coremlcompiler

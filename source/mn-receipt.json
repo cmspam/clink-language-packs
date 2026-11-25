@@ -9,21 +9,47 @@
       "url": "https://dumps.wikimedia.org/mnwiki/20261101/mnwiki-20261101-pages-articles.xml.bz2",
       "license": "CC-BY-SA-4.0",
       "sha256": "224581a786698cf0d0ef23a442fbc0b592fd5e5492532eb9761c94954cc94fff",
-      "role": "dictionary frequencies and next-word pairs"
+      "role": "dictionary frequencies, next-word pairs, and the vocabulary that identifies Mongolian in the web corpus"
     },
     {
       "name": "Tatoeba Mongolian sentence export",
       "url": "https://downloads.tatoeba.org/exports/per_language/mon/mon_sentences.tsv.bz2",
       "license": "CC-BY-2.0-FR",
       "sha256": "9cc84dab554a5ba15fe657fc3a655e66671bd8e4e2e6960e3f09d63fef56fde8",
-      "role": "everyday sentences, added to the dictionary and the next-word model"
+      "role": "everyday sentences"
+    },
+    {
+      "name": "mC4 Mongolian (Allen AI), web text",
+      "url": "https://huggingface.co/datasets/allenai/c4/resolve/1588ec454efa1a09f29cd18ddd04fe05fc8653a2/multilingual/c4-mn.tfrecord-00000-of-00128.json.gz",
+      "revision": "1588ec454efa1a09f29cd18ddd04fe05fc8653a2",
+      "license": "ODC-BY-1.0",
+      "shards": {
+        "00000": "0ee5abb6a5c592137a88eec0978669e9bccf96b62c779fbd76046a9ffd1fd596",
+        "00001": "48f28dd89f18ee7d8589d2431c8ae6fbcc76f6c0fe0c0362c21531a6b951e5f4",
+        "00002": "7ac8dc4e6a64370a575933e9e3c4e570aa1c59ea92b100a0f2b19df74fea709a",
+        "00003": "431b1df3a3bf552622ccbdf0a1cb60ddb53b63c0819e15f21f78bcc02d38783a",
+        "00004": "6aeae90000977431066a263452c3810864f049d7dde8871cad65822b76681150",
+        "00005": "eb2fc06f48722305b02c2d49f5412870004afca78b6efd4f7b3d80c20bfc6a53",
+        "00006": "d75d17b043612e397e3a2a78717aca455a333c714b3562c15c2984f0511ad403",
+        "00007": "ed8f2c8389f9722374231fa35a04afb1e36c6c04628cc4992bafc6fe802b112a",
+        "00008": "f7af03cf8aaf0b4663da01c2f20ab2bab8a75fe13ad40348492dc7df2c576f79",
+        "00009": "3f7ad88f6b84dbe28dedb9b50b076042b14efda7d76f4ee04fcda66eb0ac1ef2",
+        "00010": "28f03d515c3cd3d11c8a1d783e6862a43889fabdb719cf53692812780f4927e1",
+        "00011": "cdcb9ec6944cd2791a620c3b07a091e8e20d7454847ae025484680f0857297ba",
+        "00012": "9aab16edbae58224aadbc987685414238f989315349f733ece3de5392445468c",
+        "00013": "aa4927a9b402cb787992031767ae3b3301d23d8a52cd36aeb340f43ea401f54d",
+        "00014": "05de28171906689c9d467431f9a3f2398bf82bbb1202fc237aa1902a01441de6",
+        "00015": "4eee4aa9c2161865c94f1e34092c9e20b9ebcbac05998b39a01acc95ec7d994b"
+      },
+      "role": "web text, where everyday phrasing lives"
     }
   ],
   "derived": {
-    "sentences": 476224,
-    "tokens": 7380909,
-    "wordTypes": 298531,
-    "dictionaryWords": 50000,
-    "normalization": "Wikipedia markup removed; words are Cyrillic letters with an internal hyphen or apostrophe; sentences of 3 to 40 words; sentences that are mostly non-Cyrillic dropped"
+    "sentences": 5037957,
+    "tokens": 61112911,
+    "wordTypes": 1256665,
+    "mongolianWordTypes": 881899,
+    "dictionaryWords": 300000,
+    "normalization": "Wikipedia markup removed; words are Cyrillic letters with an internal hyphen or apostrophe; sentences of 3 to 40 words; sentences that are mostly not Mongolian dropped. The web corpus is kept only where most of its words are Mongolian, which is what separates it from Russian in the same script, and where the page carries no Kazakh or Buryat letters or words. The web text is written first and each source is shuffled, so the neural model trains on a fair sample of everyday writing rather than on one site in a row"
   }
 }
