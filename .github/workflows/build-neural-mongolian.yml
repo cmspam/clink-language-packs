@@ -36,7 +36,11 @@ jobs:
       - name: Fetch the Mongolian corpus
         run: python3 tools/prepare-mongolian.py
       - name: Train and export
-        run: python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 3
+        # The corpus is capped so the run fits the job limit: a GRU of this
+        # size trains at about 0.7 seconds a step on a four core runner, and
+        # the whole 476,000 sentence corpus would need three days of that.
+        # Sixty thousand sentences over two epochs is about two hours.
+        run: python3 tools/train-neural.py --lang mn --bpe 12000 --epochs 2 --max-lines 60000
       - uses: actions/upload-artifact@v4
         with:
           name: mn-export
