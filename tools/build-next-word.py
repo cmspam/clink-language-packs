@@ -14,6 +14,12 @@ one for each word.
 Add --top-previous N to model only the N most frequent words as the word that
 comes before another. A next-word suggestion is only useful after a word
 people actually type, and the rare words contribute pairs nobody would see.
+
+Add --min-length N to leave out words shorter than N letters, and
+--keep-short LIST to keep particular short words anyway, written as a
+comma-separated list. In Mongolian a one-letter word is a particle, and the
+particles "л" and "ч" are what really follows a word, while the other
+one-letter words in a web corpus are the tail of a broken word.
 """
 import collections
 import math
@@ -25,19 +31,26 @@ import unicodedata
 
 max_followers = 0
 top_previous = 0
+min_length = 1
+keep_short = set()
 arguments = sys.argv[1:]
-for flag in ("--max-followers", "--top-previous"):
+for flag in ("--max-followers", "--top-previous", "--min-length", "--keep-short"):
     while flag in arguments:
         index = arguments.index(flag)
         if index + 1 >= len(arguments):
-            raise SystemExit(f"{flag} needs a number.")
+            raise SystemExit(f"{flag} needs a value.")
+        value = arguments[index + 1]
         if flag == "--max-followers":
-            max_followers = int(arguments[index + 1])
+            max_followers = int(value)
+        elif flag == "--top-previous":
+            top_previous = int(value)
+        elif flag == "--min-length":
+            min_length = int(value)
         else:
-            top_previous = int(arguments[index + 1])
+            keep_short = {part.strip() for part in value.split(",") if part.strip()}
         del arguments[index:index + 2]
 if len(arguments) != 3:
-    raise SystemExit("Usage: python3 tools/build-next-word.py <code> <word-list.txt> <sentences.txt> [--max-followers N] [--top-previous N]")
+    raise SystemExit("Usage: python3 tools/build-next-word.py <code> <word-list.txt> <sentences.txt> [--max-followers N] [--top-previous N] [--min-length N] [--keep-short LIST]")
 code, word_path, corpus_path = arguments[0], pathlib.Path(arguments[1]), pathlib.Path(arguments[2])
 if not code or not code.replace("_", "").replace("-", "").isalnum():
     raise SystemExit("Use a short language code such as tok or pt_br.")
@@ -75,6 +88,8 @@ for raw in corpus_path.read_text(encoding="utf-8").splitlines():
     sentence = raw.rsplit("\t", 1)[-1]
     tokens = [word(token) for token in re.findall(r'[^\s.,!?;:"“”‘’()\[\]{}]+', sentence)]
     tokens = [token for token in tokens if token in ids]
+    tokens = [token for token in tokens
+              if len(token) >= min_length or token in keep_short]
     if allowed is None:
         pairs.update(zip(tokens, tokens[1:]))
     else:
