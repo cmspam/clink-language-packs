@@ -261,9 +261,9 @@ def main() -> None:
     # are written in the same letters and the letters alone separate nothing.
     wiki_lines = list(wiki_sentences(wiki))
     tatoeba_lines = list(tatoeba_sentences(tatoeba))
-    counts = collections.Counter()
-    counts.update(" ".join(wiki_lines).split())
-    vocabulary = {word for word, count in counts.most_common(50_000)}
+    encyclopedia = collections.Counter()
+    encyclopedia.update(" ".join(wiki_lines).split())
+    vocabulary = {word for word, count in encyclopedia.most_common(50_000)}
     rng = random.Random(SHUFFLE_SEED)
 
     counts = collections.Counter()
