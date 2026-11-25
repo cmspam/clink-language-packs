@@ -37,6 +37,8 @@ TATOEBA_URL = "https://downloads.tatoeba.org/exports/per_language/mon/mon_senten
 TATOEBA_SHA256 = "9cc84dab554a5ba15fe657fc3a655e66671bd8e4e2e6960e3f09d63fef56fde8"
 TATOEBA_LICENSE = "CC-BY-2.0-FR"
 TATOEBA_NAME = "Tatoeba Mongolian sentence export"
+# The dump server asks for a User-Agent that names who is fetching.
+USER_AGENT = "Clink language pack builder (https://github.com/cmspam/clink-language-packs)"
 
 # A Mongolian word: Cyrillic letters, optionally joined by a hyphen or an
 # apostrophe. Latin runs, digits and punctuation are not words.
@@ -146,7 +148,10 @@ def fetch(url: str, digest: str, cache: pathlib.Path) -> pathlib.Path:
     if cache.exists() and hashlib.sha256(cache.read_bytes()).hexdigest() == digest:
         return cache
     print(f"  fetching {url}", file=sys.stderr, flush=True)
-    with urllib.request.urlopen(url) as response, cache.open("wb") as target:
+    # The Wikimedia dump server asks for a User-Agent that says who is
+    # fetching, and answers the default one with a 403.
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request) as response, cache.open("wb") as target:
         shutil.copyfileobj(response, target)
     actual = hashlib.sha256(cache.read_bytes()).hexdigest()
     if actual != digest:
