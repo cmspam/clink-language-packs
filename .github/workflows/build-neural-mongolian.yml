@@ -6,8 +6,8 @@ name: Build the Mongolian neural model
 # Training runs on Linux because that is where PyTorch is fastest. The Core ML
 # conversion cannot: coremltools ships the native blob writer that writes a
 # package only for macOS, so on Linux the conversion ends with "BlobWriter not
-# loaded". The two halves are therefore two jobs, with the checkpoint passing
-# between them.
+# loaded". The conversion therefore lives in its own workflow, on a macOS
+# runner, and it takes the checkpoint this workflow uploads.
 #
 # The output is uploaded as an artifact. Copy it into Lexicons/ and push, and
 # the release workflow publishes it with the rest of the pack.
@@ -59,38 +59,3 @@ jobs:
           # out unless it is told not to.
           include-hidden-files: true
           retention-days: 7
-
-  compile:
-    needs: train
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install the training environment
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-train.txt
-      - name: Fetch the Mongolian corpus
-        # The export rebuilds the vocabulary from the corpus, so it has to
-        # match the one the checkpoint was trained against.
-        run: python3 tools/prepare-mongolian.py source/.cache 300000
-      - uses: actions/download-artifact@v4
-        with:
-          name: mn-checkpoint
-          path: tools
-      - name: Export the Core ML model
-        run: python3 tools/train-neural.py --lang mn --bpe 12000 --max-lines 200000 --export-only
-      - name: Compile the Core ML model
-        run: |
-          xcrun --find coremlcompiler
-          xcrun coremlcompiler compile tools/.lm_build/mn.mlpackage Lexicons
-          ls -la Lexicons/mn.mlmodelc
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mn-neural
-          path: |
-            Lexicons/mn.mlmodelc
-            Lexicons/mn.bpevocab
-          retention-days: 30
