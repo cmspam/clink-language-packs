@@ -3,8 +3,16 @@ name: Probe macOS runners
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  one:
-    runs-on: macos-13
+  prep:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ready
+  mac:
+    needs: prep
+    runs-on: macos-15
     steps:
       - run: echo hello
