@@ -1,0 +1,13 @@
+name: Probe macOS with permissions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  one:
+    runs-on: macos-15
+    steps:
+      - run: echo hello
