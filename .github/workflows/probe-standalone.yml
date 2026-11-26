@@ -1,0 +1,10 @@
+name: Probe standalone macOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  one:
+    runs-on: macos-15
+    steps:
+      - run: echo hello
