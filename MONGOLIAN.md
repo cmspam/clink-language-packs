@@ -54,8 +54,8 @@ and commits it when you press space. `ch` gives ч, `sh` gives ш, `shch` gives
 the dictionary and the surrounding word, which is why `u` can come out as
 either у or ү.
 
-Measured on held-out Mongolian typed in Latin, the plugin writes 92.7% of words
-correctly. Words the dictionary holds are 98% correct; words it does not are
+Measured on held-out Mongolian typed in Latin, the plugin writes 92% of words
+correctly. Words the dictionary holds are 98.7% correct; words it does not are
 69% correct, written from the word's own vowels.
 
 The two work together: the plugin writes the Cyrillic, and the pack's
