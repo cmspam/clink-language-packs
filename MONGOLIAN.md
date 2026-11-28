@@ -54,6 +54,15 @@ and commits it when you press space. `ch` gives ч, `sh` gives ш, `shch` gives
 the dictionary and the surrounding word, which is why `u` can come out as
 either у or ү.
 
+The plugin comes in three shapes: Mongolian Latin writes the word in Cyrillic
+when space ends it, Mongolian Latin Inline writes it as you type so the
+keyboard's own dictionary, next-word model and spelling help read Cyrillic and
+answer with it, and Mongolian Latin Spaced does the same and ends the word with
+a space so the next word starts clean. The last two are what make the
+prediction, the several choices in the bar and the spelling help work in Latin,
+because those come from the language pack and the pack has nothing to match in
+Latin text.
+
 Measured on held-out Mongolian typed in Latin, the plugin writes 92.7% of words
 correctly. Words the dictionary holds are 98.6% correct; words it does not are
 69% correct, written from the word's own vowels.
